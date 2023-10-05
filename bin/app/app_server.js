@@ -3,12 +3,12 @@ const app = express();
 const config = require("../config/global_config");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const morganMiddleware = require("../utils/logger/morgan");
-const multerMiddleware = require("../utils/upload/multerMiddleware");
 const logger = require("../utils/logger/log");
 require("dotenv").config();
+
+const routerOrder = require("../routes/Order");
 
 class AppServer {
   constructor() {
@@ -23,12 +23,12 @@ class AppServer {
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(cors());
-    this.app.use(cookieParser());
     this.app.use(morganMiddleware);
-    this.app.use(multerMiddleware.single("imageUrl"));
   }
 
-  routes() {}
+  routes() {
+    this.app.use("/v1/order", routerOrder);
+  }
 
   mongoSetup() {
     try {
@@ -47,7 +47,7 @@ class AppServer {
   }
 
   healthCheck() {
-    this.app.get("/v1/dashboard/user/health", (req, res) => {
+    this.app.get("/v1/order/healthz", (req, res) => {
       res.status(200).json({
         status: "success",
         uptime: process.uptime(),
